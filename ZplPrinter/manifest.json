@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "Zpl Printer",
+    "short_name": "Zpl Printer",
+    "version": "1.2",
+    "description": "Printer emulator for zpl rendering engine.",
+    "author": "Simon Binkert",
+    "app": {
+        "background": {
+            "scripts": [ "js/background.js" ],
+            "persistent": false
+        }
+    },
+    "permissions": [
+        "storage",
+        "webview"
+    ],
+    "sockets": {
+        "tcpServer": {
+            "listen": "*:*"
+        }
+    },
+    "icons": {
+        "16": "icons/Icon-16.png",
+        "24": "icons/Icon-24.png",
+        "32": "icons/Icon-32.png",
+        "48": "icons/Icon-64.png",
+        "64": "icons/Icon-64.png",
+        "128": "icons/Icon-128.png"
+    }
+
+}

@@ -1,0 +1,139 @@
+<html>
+<head>
+    <title>Zpl Printer</title>
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="bootstrap/css/bootstrap-notify.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="jquery/jquery-2.1.1.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+    <script src="bootstrap/js/bootstrap-notify.js"></script>
+    <script src="bootstrap/js/bootbox.min.js"></script>
+    <script src="js/main.js"></script>
+</head>
+<body>
+    <div class="panel panel-primary" style="height: 100%; width: 100%">
+        <div id="panel-head" class="panel-heading" style="-webkit-app-region: drag;">
+            <img src="icons/Icon-16-white.png"><span style="margin-left: 10px;">Zpl Printer</span>
+            <button id="btn-close" type="button" class="close" style="-webkit-app-region: no-drag;"><span>&times;</span></button>
+        </div>
+        <div class="panel-body">
+            <nav class="navbar navbar-default" role="navigation">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="modal" data-target="#settings-window">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <button id="btn-remove" class="btn navbar-toggle" type="button"> <span class="glyphicon glyphicon-trash"></span> </button>
+                    <div class="navbar-btn-toggle">
+                        <div class="btn-group btn-toggle">
+                            <button id="btn-on" class=" btn btn-default">ON</button>
+                            <button id="btn-off" class="btn btn-primary active">OFF</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="label-container">
+                <div id="label">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Notification -->
+    <div class='notifications bottom-left'></div>
+    <!-- Modal -->
+    <div class="modal fade" id="settings-window" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Printer Settings</h4>
+                </div>
+                <form id="configsForm" class=" form-horizontal">
+                    <div class="modal-body">
+                        <div class="container">
+
+                            <div class="control-group">
+                                <label class="control-label" for="density">Print density:</label>
+                                <div class="controls">
+                                    <div class="input-append">
+                                        <div class="btn-group">
+                                            <button id="btn-density" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                Print Density <span class="caret"></span>
+                                            </button>
+                                            <ul id="density" class="dropdown-menu" role="menu">
+                                                <li aria-valuenow="6"><a href="#">6 dpmm (152 dpi)</a></li>
+                                                <li aria-valuenow="8"><a href="#">8 dpmm (203 dpi)</a></li>
+                                                <li aria-valuenow="12"><a href="#">12 dpmm (300 dpi)</a></li>
+                                                <li aria-valuenow="24"><a href="#">24 dpmm (600 dpi)</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="control-group">
+                                <label class="control-label" for="height">Label size (inches)</label>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div class="input-group" style="padding-right: 10px;">
+                                                <span class="input-group-addon">Width</span>
+                                                <input id="width" name="width" class="form-control" placeholder="4" step="0.01" required type="number" maxlength="2" min="1" max="200">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="input-group" style="padding-right: 10px;">
+                                                <span class="input-group-addon">Height</span>
+                                                <input id="height" name="height" class="form-control" placeholder="6" step="0.01" required type="number" maxlength="2" min="1" max="200">
+                                            </div>
+                                        </td>
+                                        <td width="30%">
+                                            <div class="btn-group">
+                                                <button id="btn-unit" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                                    Unit<span class="caret"></span>
+                                                </button>
+                                                <ul id="unit" class="dropdown-menu" role="menu">
+                                                    <li aria-valuenow="1"><a href="#">inches (in)</a></li>
+                                                    <li aria-valuenow="2"><a href="#">centimeters (cm)</a></li>
+                                                    <li aria-valuenow="3"><a href="#">millimeters (mm)</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <br />
+                            <div class="control-group">
+                                <label class="control-label" for="height">Network</label>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div class="input-group" style="padding-right: 10px;">
+                                                <span class="input-group-addon">Host</span>
+                                                <input id="host" name="host" class="form-control" placeholder="127.0.0.1" required pattern="((^|\.)((25[0-5])|(2[0-4]\d)|(1\d\d)|([1-9]?\d))){4}$" type="text">
+                                            </div>
+                                        </td>
+                                        <td width="30%">
+                                            <div class="input-group" style="padding-right: 10px;">
+                                                <span class="input-group-addon">Port</span>
+                                                <input id="port" name="port" class="form-control" placeholder="9100" type="number" min="1" max="65535" required>
+                                            </div>
+                                        </td>
+                                        <td width="30%"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button id="btn-save" type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
