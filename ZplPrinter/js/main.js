@@ -16,17 +16,38 @@ $(document).ready(function () {
 
     chrome.sockets.tcp.onReceive.addListener(function (info) {
         notify('{0} bytes received from Client: <b>{1}</b> Port: <b>{2}</b>'.format(info.data.byteLength, clientSocketInfo.peerAddress, clientSocketInfo.peerPort), 'print', 'info', 1000);
-        var zpl = encodeURIComponent(String.fromCharCode.apply(null, new Uint8Array(info.data)));
+        var zpl = String.fromCharCode.apply(null, new Uint8Array(info.data));
         chrome.sockets.tcp.close(info.socketId);
         var factor = (configs.unit == '1') ? 1 : (configs.unit == '2') ? 2.54 : 25.4;
         var width = parseFloat(configs.width) / factor;
         var height = parseFloat(configs.height) / factor;
-        var uri = 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/{3}'.format(configs.density, width, height, zpl);
-        var size = getSize(width, height);
-        $('#label').prepend('<div class="thumbnail" style="width: {0}px; height: {1}px"><webview src="{2}" autosize="on" /></div>'.format(size.width, size.height, uri));
-        var offset = size.height + 20;
-        $('#label').css({ "top": '-' + offset + 'px' });
-        $('#label').animate({ "top": "0px" }, 1500);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/'.format(configs.density, width, height), true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.responseType = 'blob';
+        xhr.onload = function (e) {
+            if (this.status == 200) {
+                var blob = this.response;
+                var size = getSize(width, height)
+                var img = document.createElement('img');
+                img.setAttribute('height', size.height);
+                img.setAttribute('width', size.width);
+                img.setAttribute('class', 'thumbnail');
+                img.onload = function (e) {
+                    window.URL.revokeObjectURL(img.src);
+                };
+
+                img.src = window.URL.createObjectURL(blob);
+
+                $('#label').prepend(img);
+                var offset = size.height + 20;
+                $('#label').css({ "top": '-' + offset + 'px' });
+                $('#label').animate({ "top": "0px" }, 1500);
+            }
+        };
+
+        xhr.send(zpl);
     });
 });
 
@@ -91,7 +112,7 @@ function startTcpServer() {
 // Stop tcp server
 function stopTcpServer() {
     if (socketId == undefined) return;
-    chrome.sockets.tcpServer.close(socketId, function() {
+    chrome.sockets.tcpServer.close(socketId, function () {
         notify('Printer stopped on <b>{0}</b> Port: <b>{1}</b>'.format(configs.host, configs.port));
         socketId = undefined;
     });
@@ -109,7 +130,7 @@ function initEvents() {
         }
     });
 
-    $('#btn-remove').click(function() {
+    $('#btn-remove').click(function () {
         var size = $('.thumbnail').size();
 
         if (size > 0) {
@@ -123,8 +144,8 @@ function initEvents() {
         }
     });
 
-    $('#btn-close').click(function() {
-        chrome.storage.local.set({ isOn: $('#btn-on').hasClass('active') }, function() {
+    $('#btn-close').click(function () {
+        chrome.storage.local.set({ isOn: $('#btn-on').hasClass('active') }, function () {
             window.close();
             stopTcpServer();
         });
@@ -148,7 +169,7 @@ function initEvents() {
 
     });
 
-    $('#settings-window').on('shown.bs.modal', function() {
+    $('#settings-window').on('shown.bs.modal', function () {
         if ($('#btn-on').hasClass('active')) {
             toggleSwitch('.btn-toggle');
             stopTcpServer();
@@ -193,7 +214,7 @@ function initConfigs() {
     for (var key in configs) {
         if (key == 'density') {
             initDropDown('density', configs[key]);
-        }else if (key == 'unit') {
+        } else if (key == 'unit') {
             initDropDown('unit', configs[key]);
         } else if (key == 'isOn' && configs[key]) {
             toggleSwitch('.btn-toggle');

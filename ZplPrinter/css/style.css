@@ -8,12 +8,6 @@ body {
     padding: 0;
 }
 
-webview {
-    height: 100%;
-    margin: 0;
-    width: 100%;
-}
-
 input:required:invalid, input:focus:invalid { border-color: #d9534f; }
 
 ::-webkit-scrollbar-thumb { display: none; }

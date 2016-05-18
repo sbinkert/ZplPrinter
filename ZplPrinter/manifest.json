@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Zpl Printer",
     "short_name": "Zpl Printer",
-    "version": "1.2",
+    "version": "1.3",
     "description": "Printer emulator for zpl rendering engine.",
     "author": "Simon Binkert",
     "app": {
@@ -12,8 +12,8 @@
         }
     },
     "permissions": [
-        "storage",
-        "webview"
+      "storage",
+      "http://api.labelary.com/*"
     ],
     "sockets": {
         "tcpServer": {
