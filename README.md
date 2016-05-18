@@ -1,7 +1,5 @@
 # ZplPrinter
 
-Printer emulator for zpl rendering engine.
-
 Printer emulator for zpl rendering engine. The emulator is based on the [labelary](http://labelary.com/service.html) web service. You can configure print density, label size and the tcp server to listen for any incoming labels.
 
 ## References
