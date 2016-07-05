@@ -71,12 +71,18 @@ function getSize(width, height) {
 }
 
 function saveLabel(blob, ext) {
-    chrome.fileSystem.getWritableEntry(pathEntry, function (entry) {
-        var fileName = 'LBL' + pad(configs['counter']++, 6) + '.' + ext;
-        entry.getFile(fileName, { create: true }, function (entry) {
-            entry.createWriter(function (writer) {
-                writer.write(blob);
-                notify('Label <b>{0}</b> saved in folder <b>{1}</b>'.format(fileName, $('#txt-path').val()), 'floppy-saved', 'info', 1000);
+    chrome.storage.local.get('counter', function (items) {
+        chrome.fileSystem.getWritableEntry(pathEntry, function (entry) {
+            var counter = parseInt(items.counter);
+            var fileName = 'LBL' + pad(counter, 6) + '.' + ext;
+            chrome.storage.local.set({ 'counter': ++counter }, function () {
+                entry.getFile(fileName, { create: true }, function (entry) {
+                    entry.createWriter(function (writer) {
+                        writer.write(blob);
+                        notify('Label <b>{0}</b> saved in folder <b>{1}</b>'.format(fileName, $('#txt-path').val()), 'floppy-saved', 'info', 1000);
+
+                    });
+                });
             });
         });
     });
@@ -239,7 +245,7 @@ function initEvents() {
         }, function (entry) {
             if (chrome.runtime.lastError) {
                 console.info(chrome.runtime.lastError.message);
-            }  else {
+            } else {
                 initPath(entry);
                 pathEntry = entry;
                 retainEntry = chrome.fileSystem.retainEntry(entry);
@@ -296,12 +302,16 @@ function initConfigs() {
             initDropDown('filetype', configs[key]);
         } else if (key == 'saveLabels') {
             $('#ckb-saveLabels').prop('checked', configs[key]);
+            var disabled = !configs[key];
+            $('#btn-filetype').prop('disabled', disabled);
+            $('#btn-path').prop('disabled', disabled);
+            $('#txt-path').prop('disabled', disabled);
         } else if (key == 'isOn' && configs[key]) {
             toggleSwitch('.btn-toggle');
             startTcpServer();
         } else if (key == 'path' && configs[key]) {
             retainEntry = configs[key];
-            chrome.fileSystem.restoreEntry(configs[key], function(entry){
+            chrome.fileSystem.restoreEntry(configs[key], function (entry) {
                 pathEntry = entry;
                 initPath(entry);
             });

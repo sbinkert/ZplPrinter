@@ -21,8 +21,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
             port: '9100',
             saveLabels: false,
             filetype: '1',
-            path: null,
-            counter: 0
+            path: null
         });
     }
 });
