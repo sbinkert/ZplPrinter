@@ -1,5 +1,7 @@
 var socketId, clientSocketInfo;
 var configs = {};
+var retainEntry = null;
+var pathEntry = null;
 
 $(function () {
     $(window).bind('focus blur', function () {
@@ -29,6 +31,13 @@ $(document).ready(function () {
         xhr.onload = function (e) {
             if (this.status == 200) {
                 var blob = this.response;
+                if (configs['saveLabels']) {
+                    if (configs['filetype'] == '1') {
+                        saveLabel(blob, 'png');
+                    } else {
+                        savePdf(zpl, configs.density, width, height);
+                    }
+                }
                 var size = getSize(width, height)
                 var img = document.createElement('img');
                 img.setAttribute('height', size.height);
@@ -61,7 +70,38 @@ function getSize(width, height) {
     };
 }
 
+function saveLabel(blob, ext) {
+    chrome.fileSystem.getWritableEntry(pathEntry, function (entry) {
+        var fileName = 'LBL' + pad(configs['counter']++, 6) + '.' + ext;
+        entry.getFile(fileName, { create: true }, function (entry) {
+            entry.createWriter(function (writer) {
+                writer.write(blob);
+                notify('Label <b>{0}</b> saved in folder <b>{1}</b>'.format(fileName, $('#txt-path').val()), 'floppy-saved', 'info', 1000);
+            });
+        });
+    });
+}
 
+function savePdf(zpl, density, width, height) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/'.format(density, width, height), true);
+    xhr.setRequestHeader('Accept', 'application/pdf');
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.responseType = 'blob';
+    xhr.onload = function (e) {
+        if (this.status == 200) {
+            saveLabel(this.response, 'pdf');
+        }
+    };
+
+    xhr.send(zpl);
+}
+
+function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
 
 // Display notification
 // @param {String} text Notification text
@@ -163,7 +203,17 @@ function initEvents() {
         btn.html($(this).text() + ' <span class="caret"></span>');
     });
 
-    $("#configsForm").submit(function (e) {
+    $('#filetype li > a').click(function () {
+        var btn = $('#btn-filetype');
+        btn.attr('aria-valuenow', $(this).parent().attr('aria-valuenow'));
+        btn.html($(this).text() + ' <span class="caret"></span>');
+    });
+
+    $("#txt-path").keydown(function (e) {
+        e.preventDefault();
+    });
+
+    $('#configsForm').submit(function (e) {
         e.preventDefault();
         saveConfigs();
 
@@ -175,6 +225,28 @@ function initEvents() {
             stopTcpServer();
         }
     });
+
+    $('#ckb-saveLabels').change(function () {
+        var disabled = !$(this).is(':checked');
+        $('#btn-filetype').prop('disabled', disabled);
+        $('#btn-path').prop('disabled', disabled);
+        $('#txt-path').prop('disabled', disabled);
+    });
+
+    $('#btn-path').click(function () {
+        chrome.fileSystem.chooseEntry({
+            type: 'openDirectory',
+        }, function (entry) {
+            if (chrome.runtime.lastError) {
+                console.info(chrome.runtime.lastError.message);
+            }  else {
+                initPath(entry);
+                pathEntry = entry;
+                retainEntry = chrome.fileSystem.retainEntry(entry);
+            }
+        });
+    });
+
 }
 
 // Toggle on/off switch
@@ -196,6 +268,12 @@ function saveConfigs() {
             configs[key] = $('#btn-density').attr('aria-valuenow');
         } else if (key == 'unit') {
             configs[key] = $('#btn-unit').attr('aria-valuenow');
+        } else if (key == 'filetype') {
+            configs[key] = $('#btn-filetype').attr('aria-valuenow');
+        } else if (key == 'saveLabels') {
+            configs[key] = $('#ckb-saveLabels').is(':checked');
+        } else if (key == 'path') {
+            configs[key] = retainEntry
         } else {
             configs[key] = $('#' + key).val();
         }
@@ -205,8 +283,6 @@ function saveConfigs() {
         $('#settings-window').modal('hide');
         notify('Printer settings changes successfully saved', 'cog', 'info');
     });
-
-
 }
 
 // Init/load configs from local storage
@@ -216,14 +292,30 @@ function initConfigs() {
             initDropDown('density', configs[key]);
         } else if (key == 'unit') {
             initDropDown('unit', configs[key]);
+        } else if (key == 'filetype') {
+            initDropDown('filetype', configs[key]);
+        } else if (key == 'saveLabels') {
+            $('#ckb-saveLabels').prop('checked', configs[key]);
         } else if (key == 'isOn' && configs[key]) {
             toggleSwitch('.btn-toggle');
             startTcpServer();
+        } else if (key == 'path' && configs[key]) {
+            retainEntry = configs[key];
+            chrome.fileSystem.restoreEntry(configs[key], function(entry){
+                pathEntry = entry;
+                initPath(entry);
+            });
         }
         else {
             $('#' + key).val(configs[key]);
         }
     }
+}
+
+function initPath(entry) {
+    chrome.fileSystem.getDisplayPath(entry, function (path) {
+        $('#txt-path').val(path);
+    });
 }
 
 function initDropDown(btnId, value) {

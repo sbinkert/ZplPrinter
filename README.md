@@ -8,6 +8,10 @@ Printer emulator for zpl rendering engine. The emulator is based on the [labelar
 
 ## Release notes
 
+### Version 1.4
+
+* **New** Ability to save labels as image (PNG) or as PDF. (Thanks to [Derek Preston](https://plus.google.com/116997222122087717848/posts))
+
 ### Version 1.3
 
 * **Change** Labelary web service call from GET to POST to support large ZPL templates. (Thanks to [pitufo](https://github.com/sbinkert/ZplPrinter/issues/1))

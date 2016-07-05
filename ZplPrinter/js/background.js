@@ -18,7 +18,11 @@ chrome.runtime.onInstalled.addListener(function (details) {
             height: '6',
             unit: '1',
             host: '127.0.0.1',
-            port: '9100'
+            port: '9100',
+            saveLabels: false,
+            filetype: '1',
+            path: null,
+            counter: 0
         });
     }
 });
