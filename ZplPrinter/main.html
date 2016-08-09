@@ -120,7 +120,22 @@
                                                 <input id="port" name="port" class="form-control" placeholder="9100" type="number" min="1" max="65535" required>
                                             </div>
                                         </td>
-                                        <td width="30%"></td>
+                                        <td width="30%">
+                                            <div class="checkbox" style="padding-right: 10px;">
+                                                <h5>
+                                                    <label>
+                                                        <input id="ckb-keep-tcp-socket" type="checkbox" />
+                                                        Keep TCP socket
+                                                        <a
+                                                          href="#"
+                                                          data-toggle="tooltip"
+                                                          title="Useful when using redirection serial port programs (eg socat on Linux).">
+                                                            <span  class="glyphicon glyphicon-question-sign"></span>
+                                                        </a>
+                                                    </label>
+                                                </h5>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </table>
                             </div>

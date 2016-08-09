@@ -19,7 +19,12 @@ $(document).ready(function () {
     chrome.sockets.tcp.onReceive.addListener(function (info) {
         notify('{0} bytes received from Client: <b>{1}</b> Port: <b>{2}</b>'.format(info.data.byteLength, clientSocketInfo.peerAddress, clientSocketInfo.peerPort), 'print', 'info', 1000);
         var zpls = String.fromCharCode.apply(null, new Uint8Array(info.data)).split(/\^XZ/);
-        chrome.sockets.tcp.close(info.socketId);
+        if (!configs.keepTcpSocket) {
+            chrome.sockets.tcp.close(info.socketId);
+            notify('Closing TCP Socket.');
+        } else {
+            notify('Keeping TCP Socket.');
+        }
         var factor = (configs.unit == '1') ? 1 : (configs.unit == '2') ? 2.54 : 25.4;
         var width = parseFloat(configs.width) / factor;
         var height = parseFloat(configs.height) / factor;
@@ -283,6 +288,8 @@ function saveConfigs() {
             configs[key] = $('#btn-filetype').attr('aria-valuenow');
         } else if (key == 'saveLabels') {
             configs[key] = $('#ckb-saveLabels').is(':checked');
+        } else if (key == 'keepTcpSocket') {
+            configs[key] = $('#ckb-keep-tcp-socket').is(':checked');
         } else if (key == 'path') {
             configs[key] = retainEntry
         } else {
@@ -314,6 +321,8 @@ function initConfigs() {
         } else if (key == 'isOn' && configs[key]) {
             toggleSwitch('.btn-toggle');
             startTcpServer();
+        } else if (key == 'keepTcpSocket') {
+            $('#ckb-keep-tcp-socket').prop('checked', configs[key]);
         } else if (key == 'path' && configs[key]) {
             retainEntry = configs[key];
             chrome.fileSystem.restoreEntry(configs[key], function (entry) {
