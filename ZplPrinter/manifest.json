@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Zpl Printer",
     "short_name": "Zpl Printer",
-    "version": "1.4.2",
+    "version": "1.5",
     "description": "Printer emulator for zpl rendering engine.",
     "author": "Simon Binkert",
     "app": {

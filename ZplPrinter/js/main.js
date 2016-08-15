@@ -21,9 +21,6 @@ $(document).ready(function () {
         var zpls = String.fromCharCode.apply(null, new Uint8Array(info.data)).split(/\^XZ/);
         if (!configs.keepTcpSocket) {
             chrome.sockets.tcp.close(info.socketId);
-            notify('Closing TCP Socket.');
-        } else {
-            notify('Keeping TCP Socket.');
         }
         var factor = (configs.unit == '1') ? 1 : (configs.unit == '2') ? 2.54 : 25.4;
         var width = parseFloat(configs.width) / factor;
