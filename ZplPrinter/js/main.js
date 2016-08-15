@@ -18,45 +18,50 @@ $(document).ready(function () {
 
     chrome.sockets.tcp.onReceive.addListener(function (info) {
         notify('{0} bytes received from Client: <b>{1}</b> Port: <b>{2}</b>'.format(info.data.byteLength, clientSocketInfo.peerAddress, clientSocketInfo.peerPort), 'print', 'info', 1000);
-        var zpl = String.fromCharCode.apply(null, new Uint8Array(info.data));
+        var zpls = String.fromCharCode.apply(null, new Uint8Array(info.data)).split(/\^XZ/);
         chrome.sockets.tcp.close(info.socketId);
         var factor = (configs.unit == '1') ? 1 : (configs.unit == '2') ? 2.54 : 25.4;
         var width = parseFloat(configs.width) / factor;
         var height = parseFloat(configs.height) / factor;
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/'.format(configs.density, width, height), true);
-        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhr.responseType = 'blob';
-        xhr.onload = function (e) {
-            if (this.status == 200) {
-                var blob = this.response;
-                if (configs['saveLabels']) {
-                    if (configs['filetype'] == '1') {
-                        saveLabel(blob, 'png');
-                    } else {
-                        savePdf(zpl, configs.density, width, height);
-                    }
-                }
-                var size = getSize(width, height)
-                var img = document.createElement('img');
-                img.setAttribute('height', size.height);
-                img.setAttribute('width', size.width);
-                img.setAttribute('class', 'thumbnail');
-                img.onload = function (e) {
-                    window.URL.revokeObjectURL(img.src);
-                };
-
-                img.src = window.URL.createObjectURL(blob);
-
-                $('#label').prepend(img);
-                var offset = size.height + 20;
-                $('#label').css({ "top": '-' + offset + 'px' });
-                $('#label').animate({ "top": "0px" }, 1500);
+        for (var i in zpls) {
+            var zpl = zpls[i];
+            if (zpl != "") {
+                zpl = zpl + "^XZ";
             }
-        };
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/'.format(configs.density, width, height), true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.responseType = 'blob';
+            xhr.onload = function (e) {
+                if (this.status == 200) {
+                    var blob = this.response;
+                    if (configs['saveLabels']) {
+                        if (configs['filetype'] == '1') {
+                            saveLabel(blob, 'png');
+                        } else {
+                            savePdf(zpl, configs.density, width, height);
+                        }
+                    }
+                    var size = getSize(width, height)
+                    var img = document.createElement('img');
+                    img.setAttribute('height', size.height);
+                    img.setAttribute('width', size.width);
+                    img.setAttribute('class', 'thumbnail');
+                    img.onload = function (e) {
+                        window.URL.revokeObjectURL(img.src);
+                    };
 
-        xhr.send(zpl);
+                    img.src = window.URL.createObjectURL(blob);
+
+                    $('#label').prepend(img);
+                    var offset = size.height + 20;
+                    $('#label').css({ "top": '-' + offset + 'px' });
+                    $('#label').animate({ "top": "0px" }, 1500);
+                }
+            };
+            xhr.send(zpl);
+        }
     });
 });
 
