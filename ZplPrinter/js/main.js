@@ -28,9 +28,16 @@ $(document).ready(function () {
 
         for (var i in zpls) {
             var zpl = zpls[i];
-            if (zpl != "") {
-                zpl = zpl + "^XZ";
+            if(!(!zpl || !zpl.length)) {
+                zpl += "^XZ";
             }
+
+            if (configs['saveLabels']) {
+                if (configs['filetype'] == '2') {
+                    savePdf(zpl, configs.density, width, height);
+                }
+            }
+
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'http://api.labelary.com/v1/printers/{0}dpmm/labels/{1}x{2}/0/'.format(configs.density, width, height), true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -41,8 +48,6 @@ $(document).ready(function () {
                     if (configs['saveLabels']) {
                         if (configs['filetype'] == '1') {
                             saveLabel(blob, 'png');
-                        } else {
-                            savePdf(zpl, configs.density, width, height);
                         }
                     }
                     var size = getSize(width, height)
@@ -150,7 +155,9 @@ function startTcpServer() {
                 chrome.sockets.tcpServer.onAccept.addListener(function (clientInfo) {
                     chrome.sockets.tcp.getInfo(clientInfo.clientSocketId, function (socketInfo) {
                         clientSocketInfo = socketInfo;
-                        chrome.sockets.tcp.setPaused(clientInfo.clientSocketId, false);
+                        chrome.sockets.tcp.update(clientInfo.clientSocketId,{bufferSize: parseInt(configs.bufferSize) }, function(){
+                            chrome.sockets.tcp.setPaused(clientInfo.clientSocketId, false);
+                        });
                     });
                 });
             } else {

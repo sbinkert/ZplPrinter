@@ -19,6 +19,7 @@ chrome.runtime.onInstalled.addListener(function (details) {
             unit: '1',
             host: '127.0.0.1',
             port: '9100',
+            bufferSize: '4096',
             keepTcpSocket: false,
             saveLabels: false,
             filetype: '1',

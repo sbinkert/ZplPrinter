@@ -131,8 +131,15 @@
                                 </table>
                                 <br/>
                                 <table>
-                                    <tr>
+                                    <tr>     
                                         <td>
+                                            <div class="input-group" style="padding-right: 10px;">
+                                                <span class="input-group-addon">Buffer</span>
+                                                <input id="bufferSize" name="bufferSize" class="form-control" placeholder="4096" required type="number" min="1024">
+                                                <span class="input-group-addon">B</span>
+                                            </div>
+                                        </td>
+                                        <td width="50%">
                                             <div class="checkbox" style="padding-right: 10px;">
                                                 <label>
                                                         <input id="ckb-keep-tcp-socket" type="checkbox" />

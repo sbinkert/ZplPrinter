@@ -8,9 +8,13 @@ Printer emulator for zpl rendering engine. The emulator is based on the [labelar
 
 ## Release notes
 
+### Version 1.6
+* **Fix** PDF label export.
+* **New** TCP input buffer size can be configure in settings.
+
 ### Version 1.5
 
-* **New** Support to print multtiple labels in one request.
+* **New** Support to print multiple labels in one request.
 * **New** Optional setting to keep tcp connection alive.
 
 ### Version 1.4.1
